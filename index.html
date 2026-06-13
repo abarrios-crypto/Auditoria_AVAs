@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditoría Clínica de Ambientes Virtuales - Generador de Reportes</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2pdf.js para exportar a PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Google Fonts: Inter para un diseño limpio -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-toggle-yes.active {
+            background-color: #10B981 !important;
+            color: white !important;
+            border-color: #059669 !important;
+        }
+        .btn-toggle-no.active {
+            background-color: #EF4444 !important;
+            color: white !important;
+            border-color: #DC2626 !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white shadow-lg py-6 px-4">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <span class="text-indigo-200 text-xs font-bold tracking-wider uppercase">Medios Electrónicos y Ambientes de Aprendizaje</span>
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Auditoría Clínica de Ambientes Virtuales</h1>
+                <p class="text-indigo-200 text-sm mt-1">Docente: Dra. Adriana • Sesión 2</p>
+            </div>
+            <div class="bg-indigo-800/60 border border-indigo-700 rounded-xl px-4 py-2 text-right hidden md:block">
+                <span class="text-indigo-300 text-xs block font-semibold">Fecha de la Dinámica</span>
+                <span class="text-white text-sm font-bold">Junio, 2026</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl w-full mx-auto p-4 md:p-6 flex-grow">
+        
+        <!-- Progress Bar Indicator -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <span class="bg-indigo-100 text-indigo-800 font-extrabold w-8 h-8 rounded-full flex items-center justify-center text-sm" id="step-number-badge">1</span>
+                <div>
+                    <h3 class="font-bold text-sm text-slate-700" id="step-title-display">Datos de Identificación</h3>
+                    <p class="text-xs text-slate-400">Progreso de la sesión interactiva</p>
+                </div>
+            </div>
+            <div class="w-full md:w-64 bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" id="progress-bar" style="width: 15%"></div>
+            </div>
+        </div>
+
+        <!-- Notification Center -->
+        <div id="toast-notification" class="hidden fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-10 opacity-0">
+            <span id="toast-icon">ℹ️</span>
+            <p id="toast-message" class="text-sm font-medium"></p>
+        </div>
+
+        <!-- Step 1: Identificación y Bienvenida -->
+        <section id="step-1" class="step-section block bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+            <div class="max-w-2xl mx-auto text-center space-y-6">
+                <div class="mx-auto w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl shadow-inner">
+                    📝
+                </div>
+                <div class="space-y-2">
+                    <h2 class="text-2xl font-bold tracking-tight text-slate-900">Bienvenido a tu Cuaderno de Auditoría</h2>
+                    <p class="text-slate-500 text-sm">Mientras visualizas cada plataforma proyectada por la docente, evalúa su usabilidad aplicando tu ojo clínico individual. Al finalizar, podrás exportar tu cuaderno resuelto directamente a PDF para tu entrega.</p>
+                </div>
+                
+                <div class="bg-slate-50 rounded-xl p-6 text-left border border-slate-100 space-y-4">
+                    <div>
+                        <label for="student-name" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nombre Completo del Maestrante</label>
+                        <input type="text" id="student-name" placeholder="Escribe tu nombre y apellidos..." class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium">
+                    </div>
+                    <div>
+                        <label for="assignment-date" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Fecha</label>
+                        <input type="text" id="assignment-date" value="13 de junio de 2026" readonly class="w-full bg-slate-100 border border-slate-200 text-slate-400 rounded-xl px-4 py-3 cursor-not-allowed focus:outline-none font-medium">
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="goToStep(2)" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl px-8 py-3.5 shadow-md transition-all">
+                        Comenzar Auditoría Clínica 🚀
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2-5: Evaluaciones de Plataformas (Se generarán dinámicamente) -->
+        <div id="dynamic-steps-container"></div>
+
+        <!-- Step 6: Tabla Concentradora de Cierre -->
+        <section id="step-6" class="step-section hidden bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+            <div class="space-y-6">
+                <div class="border-b border-slate-100 pb-4">
+                    <span class="text-indigo-600 text-xs font-bold uppercase tracking-widest">Paso Final del Ejercicio</span>
+                    <h2 class="text-2xl font-bold text-slate-900">Tabla Concentradora de Propuestas de Mejora</h2>
+                    <p class="text-slate-500 text-sm mt-1">Transforma estos entornos del concepto pasivo de "Aula-Contenedor" al de un "Aula-Nodo" dinámico, proponiendo un cambio sin costo e inmediato.</p>
+                </div>
+
+                <div class="space-y-6" id="final-proposals-container">
+                    <!-- Filas generadas por JS -->
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-slate-100">
+                    <button onclick="goBack()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl px-6 py-3 transition-all flex items-center justify-center gap-2">
+                        ⬅️ Anterior
+                    </button>
+                    <button onclick="goToStep(7)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl px-8 py-3.5 shadow-md transition-all flex items-center justify-center gap-2">
+                        Revisar y Generar PDF 📋
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 7: Resumen e Impresión -->
+        <section id="step-7" class="step-section hidden bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+            <div class="text-center space-y-6 max-w-xl mx-auto">
+                <div class="mx-auto w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl shadow-inner">
+                    🎉
+                </div>
+                <div class="space-y-2">
+                    <h2 class="text-2xl font-bold tracking-tight text-slate-900">¡Auditoría Completada!</h2>
+                    <p class="text-slate-500 text-sm">Todo tu trabajo individual ha sido guardado exitosamente en este navegador. Ya puedes generar e imprimir tu reporte oficial en PDF.</p>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 text-left text-xs space-y-1">
+                    <span class="font-extrabold block text-amber-900">📌 Verificación Previa:</span>
+                    <p>• Asegúrate de que tu nombre completo esté escrito correctamente en el reporte.</p>
+                    <p>• El PDF se descargará automáticamente con el formato oficial del curso.</p>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <button onclick="generatePDF()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl px-8 py-4 shadow-lg transition-all flex items-center justify-center gap-2">
+                        📥 Descargar Cuaderno en PDF
+                    </button>
+                    <button onclick="goToStep(1)" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold rounded-xl px-8 py-3 transition-all flex items-center justify-center gap-2">
+                        ✏️ Modificar Datos Iniciales
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Template oculto de impresión para html2pdf -->
+    <div id="pdf-print-template" class="hidden bg-white text-slate-900 p-8 space-y-8" style="width: 790px;">
+        <div class="border-b-4 border-indigo-900 pb-4 flex justify-between items-end">
+            <div>
+                <p class="text-xs font-bold text-indigo-900 tracking-wider uppercase m-0">MEDIOS ELECTRÓNICOS Y AMBIENTES DE APRENDIZAJE</p>
+                <h1 class="text-2xl font-black text-slate-800 mt-1 mb-0">CUADERNO DE TRABAJO INDIVIDUAL</h1>
+                <p class="text-xs text-slate-500 mt-1 mb-0">Sesión 2: Auditoría Clínica de Ambientes Virtuales (En Vivo)</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-slate-500 m-0">Fecha de entrega:</p>
+                <p class="text-sm font-bold text-slate-800 m-0">13 de junio de 2026</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex justify-between items-center">
+            <p class="text-sm my-0"><strong>Maestrante:</strong> <span id="pdf-student-name" class="text-indigo-900 font-bold"></span></p>
+            <p class="text-sm my-0"><strong>Docente:</strong> <span class="font-bold text-slate-800">Dra. Adriana Barrios</span></p>
+        </div>
+
+        <div id="pdf-checklists-placeholder" class="space-y-6">
+            <!-- Rellenado dinámico -->
+        </div>
+
+        <div class="page-break" style="page-break-before: always;"></div>
+
+        <div class="space-y-4">
+            <div class="border-b-2 border-indigo-900 pb-2">
+                <h2 class="text-lg font-bold text-indigo-900 m-0 uppercase">TABLA CONCENTRADORA DE PROPUESTAS DE MEJORA</h2>
+                <p class="text-xs text-slate-500 m-0">Mejoras estratégicas, inmediatas y sin costo para los entornos virtuales analizados.</p>
+            </div>
+            
+            <table class="w-full text-xs border-collapse border border-slate-300">
+                <thead>
+                    <tr class="bg-indigo-900 text-white">
+                        <th class="border border-slate-300 p-2 text-left" style="width: 25%;">Institución</th>
+                        <th class="border border-slate-300 p-2 text-left" style="width: 40%;">Propuesta de Mejora Concreta</th>
+                        <th class="border border-slate-300 p-2 text-left" style="width: 35%;">Justificación Pedagógica</th>
+                    </tr>
+                </thead>
+                <tbody id="pdf-proposals-placeholder">
+                    <!-- Rellenado dinámico -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-100 border-t border-slate-200 py-4 text-center text-xs text-slate-400 px-4">
+        <p>© 2026 Maestría en Educación | Medios Electrónicos y Ambientes de Aprendizaje. Dra. Adriana Alicia Barrios Rodríguez </p>
+    </footer>
+
+    <script>
+        // Datos de las plataformas y criterios de evaluación
+        const platforms = [
+            {
+                id: "iberotech",
+                name: "IBEROTECH",
+                focus: "Educación técnica e industrial en entorno Moodle.",
+                link: "https://campus.iberotech.org/course/view.php?id=9"
+            },
+            {
+                id: "ops",
+                name: "Organización Panamericana de la Salud (OPS)",
+                focus: "Cursos masivos autogestivos de alta estructura.",
+                link: "https://campus.paho.org/mooc/course/view.php?id=357"
+            },
+            {
+                id: "santander",
+                name: "SANTANDER OPEN ACADEMY",
+                focus: "LMS Corporativo, moderno y de escala global.",
+                link: "https://lms.santanderopenacademy.com/courses/4043"
+            },
+            {
+                id: "oei",
+                name: "OEI (Organización de Estados Iberoamericanos)",
+                focus: "Plataforma institucional para la cooperación y la cultura.",
+                link: "https://aula-virtual-mooc.oei.int/course/view.php?id=10"
+            }
+        ];
+
+        const dimensions = [
+            { key: "estru", label: "Estructural", criteria: "¿Tiene un orden lógico (bloques, pestañas o temas claros) que segmenta bien las etapas del curso?" },
+            { key: "func", label: "Funcional (UX)", criteria: "¿Se cumple la 'regla de los 3 clics' para llegar a lo importante sin dar mil vueltas innecesarias?" },
+            { key: "andam", label: "Andamiaje", criteria: "¿El diseño visual está limpio, libre de textos amontonados o colores distractores (ruido visual)?" },
+            { key: "relac", label: "Relacional", criteria: "¿Hay canales abiertos y de fácil acceso para platicar con el docente o los compañeros (foros, chats)?" },
+            { key: "simbo", label: "Simbólica", criteria: "¿El lenguaje de los títulos, letreros y consignas es empático, profesional y orientador?" }
+        ];
+
+        // Estado de la Aplicación
+        let currentStep = 1;
+        let auditData = {};
+
+        // Inicializar datos en blanco o recuperar de LocalStorage
+        function initData() {
+            const savedData = localStorage.getItem('auditor_clinic_data_2026');
+            if (savedData) {
+                auditData = JSON.parse(savedData);
+                document.getElementById('student-name').value = auditData.studentName || '';
+            } else {
+                auditData = {
+                    studentName: "",
+                    evaluations: {},
+                    proposals: {}
+                };
+                platforms.forEach(p => {
+                    auditData.evaluations[p.id] = {};
+                    dimensions.forEach(d => {
+                        auditData.evaluations[p.id][d.key] = { compliance: "", observation: "" };
+                    });
+                    auditData.proposals[p.id] = { proposal: "", justification: "" };
+                });
+            }
+        }
+
+        // Mostrar Notificaciones (Toast)
+        function showToast(message, icon = "ℹ️") {
+            const toast = document.getElementById("toast-notification");
+            document.getElementById("toast-message").innerText = message;
+            document.getElementById("toast-icon").innerText = icon;
+            
+            toast.classList.remove("hidden");
+            setTimeout(() => {
+                toast.classList.remove("translate-y-10", "opacity-0");
+            }, 50);
+
+            setTimeout(() => {
+                toast.classList.add("translate-y-10", "opacity-0");
+                setTimeout(() => {
+                    toast.classList.add("hidden");
+                }, 300);
+            }, 3000);
+        }
+
+        // Construir los pasos de las plataformas de forma dinámica
+        function renderDynamicSteps() {
+            const container = document.getElementById('dynamic-steps-container');
+            container.innerHTML = '';
+
+            platforms.forEach((p, idx) => {
+                const stepNum = idx + 2; // El paso 1 es Bienvenida, por tanto, las plataformas son pasos 2 a 5
+                const section = document.createElement('section');
+                section.id = `step-${stepNum}`;
+                section.className = "step-section hidden bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 space-y-6";
+
+                // Contenido de cabecera de la sección
+                section.innerHTML = `
+                    <div class="border-b border-slate-100 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <span class="text-indigo-600 text-xs font-bold uppercase tracking-widest">Plataforma ${idx + 1} de ${platforms.length}</span>
+                            <h2 class="text-2xl font-black text-slate-900 mt-1">${p.name}</h2>
+                            <p class="text-slate-500 text-sm italic mt-1">Enfoque: ${p.focus}</p>
+                        </div>
+                        <a href="${p.link}" target="_blank" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-4 py-2 rounded-xl text-xs flex items-center gap-2 border border-indigo-100 transition-all">
+                            🔗 Explorar Plataforma En Vivo
+                        </a>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">CRITERIOS CLÍNICOS DE ÉXITO:</p>
+                        <div class="space-y-6" id="criteria-container-${p.id}"></div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-slate-100">
+                        <button onclick="goBack()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl px-6 py-3 transition-all flex items-center justify-center gap-2">
+                            ⬅️ Anterior
+                        </button>
+                        <button onclick="goToStep(${stepNum + 1})" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl px-8 py-3.5 shadow-md transition-all flex items-center justify-center gap-2">
+                            Siguiente Plataforma ➡️
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(section);
+
+                // Agregar los Criterios a esta plataforma
+                const criteriaBox = document.getElementById(`criteria-container-${p.id}`);
+                dimensions.forEach(d => {
+                    const row = document.createElement('div');
+                    row.className = "bg-slate-50 rounded-xl p-4 md:p-5 border border-slate-100 space-y-4 md:space-y-0 md:flex md:items-center md:gap-6 justify-between";
+                    
+                    const currentValue = auditData.evaluations[p.id][d.key];
+                    const yesActive = currentValue.compliance === "SÍ" ? "active" : "";
+                    const noActive = currentValue.compliance === "NO" ? "active" : "";
+
+                    row.innerHTML = `
+                        <div class="flex-grow space-y-1 max-w-xl">
+                            <span class="inline-block bg-indigo-100 text-indigo-800 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md">${d.label}</span>
+                            <h4 class="text-slate-700 text-sm font-semibold tracking-tight">${d.criteria}</h4>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-4 items-stretch md:items-center">
+                            <!-- Toggle Buttons -->
+                            <div class="flex border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white shrink-0 self-center">
+                                <button onclick="setCompliance('${p.id}', '${d.key}', 'SÍ', this)" class="btn-toggle-yes ${yesActive} flex-1 px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all border-r border-slate-200">
+                                    SÍ
+                                </button>
+                                <button onclick="setCompliance('${p.id}', '${d.key}', 'NO', this)" class="btn-toggle-no ${noActive} flex-1 px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all">
+                                    NO
+                                </button>
+                            </div>
+                            <!-- Diagnóstico Input -->
+                            <div class="flex-grow md:w-64">
+                                <input type="text" 
+                                    placeholder="Diagnóstico Relámpago (Hallazgos)..." 
+                                    value="${currentValue.observation}"
+                                    onchange="setObservation('${p.id}', '${d.key}', this.value)"
+                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                    `;
+                    criteriaBox.appendChild(row);
+                });
+            });
+
+            // Generar dinámicamente el bloque de propuestas de cierre
+            const propContainer = document.getElementById('final-proposals-container');
+            propContainer.innerHTML = '';
+            platforms.forEach(p => {
+                const row = document.createElement('div');
+                row.className = "bg-slate-50 rounded-xl p-5 border border-slate-100 space-y-4";
+                row.innerHTML = `
+                    <div class="border-b border-slate-200/60 pb-2">
+                        <h3 class="font-bold text-slate-800 text-md">${p.name}</h3>
+                        <p class="text-slate-400 text-xs">Propuesta de cambio y beneficio pedagógico para el cerebro del alumno.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Propuesta Concreta de Cambio</label>
+                            <textarea 
+                                placeholder="¿Qué cambiarías, limpiarías o renombrarías en esta plataforma?" 
+                                onchange="setProposal('${p.id}', 'proposal', this.value)"
+                                rows="2" 
+                                class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">${auditData.proposals[p.id].proposal}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Justificación Pedagógica Corta</label>
+                            <textarea 
+                                placeholder="¿De qué forma este cambio reduce la fatiga o carga mental del estudiante?" 
+                                onchange="setProposal('${p.id}', 'justification', this.value)"
+                                rows="2" 
+                                class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">${auditData.proposals[p.id].justification}</textarea>
+                        </div>
+                    </div>
+                `;
+                propContainer.appendChild(row);
+            });
+        }
+
+        // Setter para cumplimiento SÍ/NO
+        function setCompliance(platformId, dimensionKey, val, element) {
+            auditData.evaluations[platformId][dimensionKey].compliance = val;
+            
+            // Administrar clases de botones activos
+            const parent = element.parentElement;
+            parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            element.classList.add('active');
+
+            saveData();
+        }
+
+        // Setter para observaciones
+        function setObservation(platformId, dimensionKey, val) {
+            auditData.evaluations[platformId][dimensionKey].observation = val;
+            saveData();
+        }
+
+        // Setter para propuestas finales
+        function setProposal(platformId, field, val) {
+            auditData.proposals[platformId][field] = val;
+            saveData();
+        }
+
+        // Guardar en LocalStorage
+        function saveData() {
+            auditData.studentName = document.getElementById('student-name').value;
+            localStorage.setItem('auditor_clinic_data_2026', JSON.stringify(auditData));
+        }
+
+        // Navegación entre pasos
+        function goToStep(stepNum) {
+            if (stepNum === 2) {
+                const name = document.getElementById('student-name').value.trim();
+                if (!name) {
+                    showToast("Por favor, ingresa tu nombre para iniciar tu reporte", "⚠️");
+                    return;
+                }
+                saveData();
+            }
+
+            // Ocultar sección actual
+            document.getElementById(`step-${currentStep}`).classList.add('hidden');
+            
+            // Mostrar nueva sección
+            document.getElementById(`step-${stepNum}`).classList.remove('hidden');
+            currentStep = stepNum;
+
+            // Actualizar header de progreso
+            updateProgressIndicator(stepNum);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goBack() {
+            goToStep(currentStep - 1);
+        }
+
+        // Actualizar interfaz de progreso visual
+        function updateProgressIndicator(step) {
+            const badge = document.getElementById('step-number-badge');
+            const title = document.getElementById('step-title-display');
+            const progress = document.getElementById('progress-bar');
+
+            if (step === 1) {
+                badge.innerText = "1";
+                title.innerText = "Datos de Identificación";
+                progress.style.width = "15%";
+            } else if (step >= 2 && step <= 5) {
+                const pIdx = step - 2;
+                badge.innerText = step.toString();
+                title.innerText = `Evaluación: ${platforms[pIdx].name}`;
+                progress.style.width = `${15 + (pIdx + 1) * 15}%`;
+            } else if (step === 6) {
+                badge.innerText = "6";
+                title.innerText = "Tabla Concentradora de Cierre";
+                progress.style.width = "90%";
+            } else if (step === 7) {
+                badge.innerText = "7";
+                title.innerText = "Generación de Reporte PDF";
+                progress.style.width = "100%";
+            }
+        }
+
+        // Preparar plantilla para la exportación de PDF
+        function preparePDFTemplate() {
+            const nameField = document.getElementById('student-name').value;
+            document.getElementById('pdf-student-name').innerText = nameField || "Sin Nombre Especificado";
+
+            const checklistsBox = document.getElementById('pdf-checklists-placeholder');
+            checklistsBox.innerHTML = '';
+
+            platforms.forEach((p, pIdx) => {
+                const card = document.createElement('div');
+                card.className = "border border-slate-300 rounded-xl p-4 bg-slate-50 space-y-3";
+                
+                let rowsHtml = '';
+                dimensions.forEach(d => {
+                    const ans = auditData.evaluations[p.id][d.key];
+                    const compVal = ans.compliance || "SÍ / NO";
+                    const obsVal = ans.observation || "Sin observaciones agregadas.";
+                    
+                    rowsHtml += `
+                        <tr class="border-b border-slate-200">
+                            <td class="p-2 font-bold" style="width: 25%;">${d.label}</td>
+                            <td class="p-2" style="width: 45%;">${d.criteria}</td>
+                            <td class="p-2 font-extrabold text-center text-sm" style="width: 10%; color: ${compVal === "SÍ" ? '#10B981' : (compVal === "NO" ? '#EF4444' : '#64748B')};">${compVal}</td>
+                            <td class="p-2 italic text-slate-600" style="width: 20%;">${obsVal}</td>
+                        </tr>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="border-b-2 border-slate-300 pb-1 flex justify-between items-center">
+                        <h3 class="text-sm font-black text-indigo-900 m-0 uppercase">${pIdx + 1}. Plataforma: ${p.name}</h3>
+                        <span class="text-xs text-slate-500">${p.focus}</span>
+                    </div>
+                    <table class="w-full text-[10px] border-collapse">
+                        <thead>
+                            <tr class="bg-slate-200 text-slate-700">
+                                <th class="p-2 text-left">Dimensión</th>
+                                <th class="p-2 text-left">Criterio</th>
+                                <th class="p-2 text-center">Cumple</th>
+                                <th class="p-2 text-left">Diagnóstico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                `;
+                checklistsBox.appendChild(card);
+            });
+
+            // Preparar propuestas finales en el PDF
+            const proposalsBox = document.getElementById('pdf-proposals-placeholder');
+            proposalsBox.innerHTML = '';
+
+            platforms.forEach(p => {
+                const rowData = auditData.proposals[p.id];
+                const propText = rowData.proposal || "Sin cambios propuestos.";
+                const justText = rowData.justification || "Sin justificación.";
+
+                const row = document.createElement('tr');
+                row.className = "border-b border-slate-300";
+                row.innerHTML = `
+                    <td class="p-2 font-bold border-r border-slate-300 bg-slate-50">${p.name}</td>
+                    <td class="p-2 border-r border-slate-300 text-justify">${propText}</td>
+                    <td class="p-2 text-justify">${justText}</td>
+                `;
+                proposalsBox.appendChild(row);
+            });
+        }
+
+        // Generar y descargar el PDF usando html2pdf.js
+        function generatePDF() {
+            showToast("Construyendo plantilla de reporte...", "⚙️");
+            
+            // Forzar guardado de nombre por si acaso
+            saveData();
+            preparePDFTemplate();
+
+            const template = document.getElementById('pdf-print-template');
+            template.classList.remove('hidden'); // Temporalmente visible para captura
+
+            const opt = {
+                margin:       10,
+                filename:     `Cuaderno_Trabajo_Sesion_2_${auditData.studentName.replace(/\s+/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Ejecución del generador de PDF
+            html2pdf().set(opt).from(template).save().then(() => {
+                template.classList.add('hidden'); // Ocultar de nuevo tras captura
+                showToast("¡Archivo PDF generado exitosamente!", "✅");
+            }).catch(err => {
+                template.classList.add('hidden');
+                showToast("Ocurrió un error generando el documento", "❌");
+                console.error(err);
+            });
+        }
+
+        // Inicializar al cargar
+        window.onload = function() {
+            initData();
+            renderDynamicSteps();
+            updateProgressIndicator(1);
+        }
+    </script>
+</body>
+</html>
